@@ -1,0 +1,135 @@
+\documentclass[a4paper,10pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{geometry}
+\geometry{
+	a4paper,
+	left=13mm,
+	right=13mm,
+	top=13mm,
+	bottom=13mm,
+}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage[toc,page]{appendix}
+
+
+\title{Fully dynamic k-center clustering\\
+ \vspace{0.3cm}
+	\small Project report}
+\author{Adèle Mortier}
+
+\begin{document}
+
+
+
+\maketitle
+\section*{Introduction}
+The aim of this class project was to implement an algorithm that maintains efficiently and cheaply a clustering for GPS-located tweets that had been collected on Twitter. The algorithm was based on a popular method called $k$-center clustering (or $k$-means clustering). Contrary to a standard $k$-means problem, the data were dynamic in the sense that at each step, the oldest tweet was removed from the dataset and the newest was added. For our implementation, we used Python and the following combinations of parameters :
+\begin{center}
+	\begin{tabular}{| c | c | c |}
+		\hline
+		Variable & Name & Value \\ \hline
+		Number of clusters & \texttt{k} & $[15, 20]$ \\
+		Dataset size & \texttt{window\_width} & $[10 000, 15 000]$ \\
+		Number of updates\footnote{one update is composed of one tweet insertion and one tweet deletion} & \texttt{n\_operations} & $60000$\\
+		\hline
+	\end{tabular}
+\end{center}
+
+\section{Project description}
+	\subsection{Preprocessing}
+		The data had been stored in a \texttt{txt} file, each line of the file representing a tweet (\textit{i.e.} a timestamp, a latitude and a longitude). We parsed this file and put the data in a \texttt{h5} file\footnote{using the package \texttt{h5py}} to have faster I/O for our later queries on the dataset. We also put a unique \textit{id} (basically, an \texttt{int}) on each tweet to manipulate them more abstractly and efficiently. The data (latitude, longitude) behind each tweet \textit{id} could be easily retrieved using a Python dictionary.
+	\subsection{Computation of the dataset parameters}
+		Before doing the clustering, we had to retrieve two parameters from our dataset, which were :
+		\begin{eqnarray*}
+			d_{min} = min_{x_1 \neq x_2 \in S}\left(dist(x_1, x_2)\right) \\
+			d_{max} = max_{x_1 \neq x_2 \in S}\left(dist(x_1, x_2)\right)
+		\end{eqnarray*}
+		$S$ being the set of tweets defined by their GPS coordinates. We wanted $dist$ to be a relevant metric w.r.t our data, so we used a custom metric called the Haversine distance that computes the distance (in kilometers) between two points defined by their GPS coordinates.\\
+		To compute $d_{min}$ and $d_{max}$, we first tried a brute-force method that consisted in using the Scipy \texttt{pdist} function that computes the pairwise distance for all points i a dataset\footnote{and then we would have taken the minimum and the maximum of these distances}. But the function ran out of memory when computing on the $1$ million tweets.\\
+		We thus chose more refined methods, \textit{i.e.} Delaunay triangulation \cite{Delaunay1934} for $d_{min}$ and Rotating calipers \cite{Shamos1978} for $d_{max}$. We took code snippets from \href{https://stackoverflow.com/questions/5119644/identifying-points-with-the-smallest-euclidean-distance}{here} and \href{https://www.ics.uci.edu/~eppstein/161/python/diameter.py}{here} and adapted them such that we could deal with the Haversine distance instead of the Euclidean one. The Delaunay (D) algorithm and the Rotating calipers (RC) algorithm returned the following results :
+		\begin{center}
+			\begin{tabular}{| c | c | c |}
+				\hline
+				Algorithm & Expected result & Value (km)\\ \hline
+				D & $d_{min}$ & $8.50586308516 \times 10^{-7}$ \\
+				RC & $d_{max}$ & $18680.1424983$ \\
+				\hline
+			\end{tabular}
+		\end{center}
+		The values compiled above look consistent with our metric and the Earth topology : we expected the upper bound of $d_{max}$ to be about $20000$ km\footnote{half the Earth's circumference}, and the lower bound of $d_{min}$ to be close to zero\footnote{tweets written by the same person...}. With these values is was then easy to compute the different values of $\beta$ for each value of $\epsilon$
+	\subsection{Algorithms}
+		We implemented the algorithms as specified in \cite{Chan2017}. More precisely :
+		\begin{itemize}
+			\item for a fixed $\beta$, a ($\beta$-)clustering is a Python \texttt{dict}, whose keys are the tweet \textit{ids}\footnote{for the tweets that belong to the current dataset}, and whose values are the centers \textit{ids}. Each tweet \textit{id} is then mapped to the cluster it belongs to (identified by the \textit{id} of its center), or to $-1$ if it is not yet clustered.
+			\item for a set of $\beta$\begin{tiny}s\end{tiny}, a $\beta$\begin{tiny}s\end{tiny}-clustering is a \texttt{dict} that maps each $\beta$ to its corresponding clustering.
+			\item for a set of $\epsilon$\begin{tiny}s\end{tiny}, an $\epsilon$-clustering is a \texttt{dict} that maps each value of $\epsilon$ to its corresponding $\beta$\begin{tiny}s\end{tiny}-clustering
+		\end{itemize}
+		We used the \texttt{dict} structure for two reasons : first the \texttt{dict} structure is more modular\footnote{for instance if we wanted to do something else than the sliding window model, \textit{e.g.} add/remove the nodes in random order (and hence by random \textit{id}), a \texttt{dict} would be much more convenient (w.r.t a \texttt{list}) to remember which point belong to which cluster...}, second because of the good time complexities of this structure\footnote{for \texttt{get} and \texttt{set}, both the \texttt{dict} and the \texttt{list} are $O(1)$ on average. \texttt{dict} is better on average for \texttt{delete}, with a $O(1)$, \textit{vs} $O(n)$ for the \texttt{list}. That is good for us because we have to do as many deletions as insertions in our framework. Conversely, we do not use so many times \texttt{get} and \texttt{set}, where the \texttt{list} is slightly better (in worst case).}
+\section{Analysis}
+All the plots and tables are in the Appendix. As we look at Figure \ref{maps}, the algorithm seems to work well, and the Haversine metric allows to see a real geographical clustering, with areas that coincide with the different continents and the regions within them that present a huge demographic density : US East- and Westcoasts, Europe, East-Asia, Middle-East, South-Africa, South America... We can notice that the partition is quite robust regarding reclustering after center deletion. The clusters that keep the same color have not been reclustered, whereas there is a brand new cluster located in Japan, and for instance the Australian cluster has moved a bit.\\
+As we look at the plots of Figure \ref{plots}, we can observe that the execution time is very sensitive to the precision parameter $\epsilon$. Indeed, a smaller $\epsilon$ (\textit{i.e.} a higher precision) forces us to compute a clustering for more $\beta$\begin{tiny}s\end{tiny}...
+
+\begin{appendices}
+	\begin{figure}[h]
+	\centering
+	\begin{subfigure}[t]{0.4\textwidth}
+		\centering
+		\includegraphics[width=0.9\textwidth]{pictures/map_15_75000_15000_0.png}
+		\caption{Map of the initial (static) clustering for the best $\epsilon$ and the best $\beta$}
+	\end{subfigure} %
+	\begin{subfigure}[t]{0.4\textwidth}
+		\centering
+		\includegraphics[width=0.9\textwidth]{pictures/map_15_75000_15000_821.png}
+		\caption{Map after the first reclustering (here operation $821$) for the best $\epsilon$ and the best $\beta$}
+\end{subfigure}
+\caption{Spatial representation of the clustering before and after a reclustering operation}
+\label{maps}
+\end{figure}
+\begin{figure}[h]
+	\centering
+	\begin{subfigure}[b]{0.3\textwidth}
+		\includegraphics[width=\textwidth]{pictures/average_execution_times_per_update_20_60000_10000.png}
+		\caption{Average execution time per update as a function of $\epsilon$}
+	\end{subfigure}
+	% this comment avoids break-line...
+	\begin{subfigure}[b]{0.3\textwidth}
+		\includegraphics[width=\textwidth]{pictures/final_execution_times_20_60000_10000.png}
+		\caption{Total execution time (static and dynamic clustering) as a function of $\epsilon$}
+	\end{subfigure}
+	%
+	\begin{subfigure}[b]{0.3\textwidth}
+		\includegraphics[width=\textwidth]{pictures/cumulated_execution_times_20_60000_10000.png}
+		\caption{Evolution of the execution time (sampled each 500 operations)}
+	\end{subfigure}
+	
+	\begin{subfigure}[b]{0.3\textwidth}
+		\includegraphics[width=\textwidth]{pictures/average_execution_times_per_update_15_60000_10000.png}
+		\caption{Average execution time per update as a function of $\epsilon$}
+	\end{subfigure}
+	% this comment avoids break-line...
+	\begin{subfigure}[b]{0.3\textwidth}
+		\includegraphics[width=\textwidth]{pictures/final_execution_times_15_60000_10000.png}
+		\caption{Total execution time (static and dynamic clustering) as a function of $\epsilon$}
+	\end{subfigure}
+	%
+	\begin{subfigure}[b]{0.3\textwidth}
+		\includegraphics[width=\textwidth]{pictures/cumulated_execution_times_15_60000_10000.png}
+		\caption{Evolution of the execution time (sampled each 500 operations)}
+	\end{subfigure}
+	\caption{Experimental results for several sets of parameters}\label{fig:ABCD}
+\label{plots}
+\end{figure}
+\begin{tabular}{|c|c|c|c|c|c|c|c|c|}
+	\frac{t_2}{t_1}
+\end{tabular}
+\end{appendices}
+\medskip
+
+
+\bibliography{bibliography}
+\bibliographystyle{plain}
+
+\end{document}

@@ -1,0 +1,20 @@
+\begin{thebibliography}{1}
+
+\bibitem{Chan2017}
+Hubert Chan, Arnaud Guerquin, and Mauro Sozio.
+\newblock Fully dynamic k-center clustering.
+\newblock Technical report, 2017.
+
+\bibitem{Delaunay1934}
+Boris Delaunay.
+\newblock Sur la sphère vide : à la mémoire de georges voronoï.
+\newblock {\em Bulletin de l'Académie des Sciences de l'URSS, Classe des
+  sciences mathématiques et naturelles}, 6:793--800, 1934.
+
+\bibitem{Shamos1978}
+Michael Shamos.
+\newblock {\em Computational Geometry}.
+\newblock PhD thesis, Yale University, 1978.
+\newblock pp. 76--81.
+
+\end{thebibliography}
