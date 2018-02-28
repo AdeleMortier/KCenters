@@ -102,11 +102,13 @@ def plot_clusters_on_map(id_to_coords, col, clusters, order, number):
 ############
 
 def F1_pair(cluster_exp, cluster_th):
-    len_exp = len(cluster_exp)
-    len_th = len(cluster_th)
-    card_inter = len_exp + len_th - len(list(set(cluster_exp + cluster_th)))
-    precision =  card_inter/len_exp
-    recall = card_inter/len_th
+    set_exp = set(cluster_exp)
+    set_th = set(cluster_th)
+    card_exp = len(set_exp)
+    card_th = len(set_th)
+    card_inter = len(set_exp.intersection(set_th))
+    precision =  float(card_inter)/card_exp
+    recall = float(card_inter)/card_th
     if precision == 0 and recall == 0:
         return None
     return (2*precision*recall)/(recall+precision)
@@ -140,6 +142,7 @@ def open_cluster(path):
 
 
 
+
 if __name__ == '__main__':
 
     parser = argparse.ArgumentParser()
@@ -155,19 +158,20 @@ if __name__ == '__main__':
     n_operations = args.n_operations
     k = args.k
 
-    """print("Plotting...")
-    plot_times(n_operations, k, window_width)"""
-
-    path1 = 'files/15_0_10000_50000/15_0_10000_50000_clusters.hdf5'
+    print("Plotting...")
+    plot_times(n_operations, k, window_width)
 
 
-    path2 = 'files/15_30000_10000_20000/15_30000_10000_20000_clusters.hdf5'
-    clusters_exp = open_cluster(path2)
-    clusters_th = open_cluster(path1)
-    f1 = F1_all(clusters_exp, clusters_th)
-    print(f1)
+    
+    path1 = 'files/test_f_score/15_0_10000_50000/15_0_10000_50000_clusters.hdf5'
 
+    offsets = [5000, 10000, 15000, 20000, 25000, 30000, 35000, 40000, 45000, 50000]
+    n_ops = [50000-offset for offset in offsets]
+    for offset, n_op in zip(offsets, n_ops):
+        path2 = 'files/test_f_score/15_' + str(n_op) + '_10000_' + str(offset)+ '/15_' + str(n_op) + '_10000_' + str(offset) +'_clusters.hdf5'
+        clusters_exp = open_cluster(path2)
+        clusters_th = open_cluster(path1)
+        f1 = F1_all(clusters_exp, clusters_th)
+        print(n_op, f1)
 
-
-
-
+   

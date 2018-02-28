@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.16 (TeX Live 2015/Debian) (preloaded format=pdflatex 2017.8.23)  26 FEB 2018 22:46
+This is pdfTeX, Version 3.14159265-2.6-1.40.16 (TeX Live 2015/Debian) (preloaded format=pdflatex 2017.8.23)  28 FEB 2018 22:23
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -647,105 +647,109 @@ LaTeX Font Info:    Font shape `OMS/cmr/m/n' in size <10> not available
  [1
 
 {/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map}]
-<pictures/map_15_75000_15000_0.png, id=72, 450.2421pt x 241.3818pt>
+<pictures/map_15_75000_15000_0.png, id=83, 450.2421pt x 241.3818pt>
 File: pictures/map_15_75000_15000_0.png Graphic file (type png)
 
 <use pictures/map_15_75000_15000_0.png>
-Package pdftex.def Info: pictures/map_15_75000_15000_0.png used on input line 8
-0.
+Package pdftex.def Info: pictures/map_15_75000_15000_0.png used on input line 9
+1.
 (pdftex.def)             Requested size: 188.46689pt x 101.0408pt.
 LaTeX Font Info:    External font `cmex10' loaded for size
-(Font)              <9> on input line 81.
+(Font)              <9> on input line 92.
 
-<pictures/map_15_75000_15000_821.png, id=74, 450.2421pt x 241.3818pt>
+<pictures/map_15_75000_15000_821.png, id=85, 450.2421pt x 241.3818pt>
 File: pictures/map_15_75000_15000_821.png Graphic file (type png)
 
 <use pictures/map_15_75000_15000_821.png>
 Package pdftex.def Info: pictures/map_15_75000_15000_821.png used on input line
- 85.
+ 96.
 (pdftex.def)             Requested size: 188.46689pt x 101.0408pt.
 
-<pictures/average_execution_times_per_update_20_60000_10000.png, id=75, 462.528
-pt x 346.896pt>
-File: pictures/average_execution_times_per_update_20_60000_10000.png Graphic fi
-le (type png)
 
-<use pictures/average_execution_times_per_update_20_60000_10000.png>
-Package pdftex.def Info: pictures/average_execution_times_per_update_20_60000_1
-0000.png used on input line 94.
-(pdftex.def)             Requested size: 157.0608pt x 117.79486pt.
+LaTeX Warning: `h' float specifier changed to `ht'.
 
-<pictures/final_execution_times_20_60000_10000.png, id=76, 462.528pt x 346.896p
-t>
-File: pictures/final_execution_times_20_60000_10000.png Graphic file (type png)
 
- <use pictures/final_execution_times_20_60000_10000.png>
-Package pdftex.def Info: pictures/final_execution_times_20_60000_10000.png used
- on input line 99.
-(pdftex.def)             Requested size: 157.0608pt x 117.79486pt.
-
-<pictures/cumulated_execution_times_20_60000_10000.png, id=77, 462.528pt x 346.
-896pt>
-File: pictures/cumulated_execution_times_20_60000_10000.png Graphic file (type 
-png)
- <use pictures/cumulated_execution_times_20_60000_10000.png>
-Package pdftex.def Info: pictures/cumulated_execution_times_20_60000_10000.png 
-used on input line 104.
-(pdftex.def)             Requested size: 157.0608pt x 117.79486pt.
-
-<pictures/average_execution_times_per_update_15_60000_10000.png, id=78, 462.528
+<pictures/average_execution_times_per_update_15_60000_10000.png, id=86, 462.528
 pt x 346.896pt>
 File: pictures/average_execution_times_per_update_15_60000_10000.png Graphic fi
 le (type png)
 
 <use pictures/average_execution_times_per_update_15_60000_10000.png>
 Package pdftex.def Info: pictures/average_execution_times_per_update_15_60000_1
-0000.png used on input line 109.
+0000.png used on input line 105.
 (pdftex.def)             Requested size: 157.0608pt x 117.79486pt.
 
-<pictures/final_execution_times_15_60000_10000.png, id=79, 462.528pt x 346.896p
+<pictures/final_execution_times_15_60000_10000.png, id=87, 462.528pt x 346.896p
 t>
 File: pictures/final_execution_times_15_60000_10000.png Graphic file (type png)
 
  <use pictures/final_execution_times_15_60000_10000.png>
 Package pdftex.def Info: pictures/final_execution_times_15_60000_10000.png used
- on input line 114.
+ on input line 110.
 (pdftex.def)             Requested size: 157.0608pt x 117.79486pt.
 
-<pictures/cumulated_execution_times_15_60000_10000.png, id=80, 462.528pt x 346.
+<pictures/cumulated_execution_times_15_60000_10000.png, id=88, 462.528pt x 346.
 896pt>
 File: pictures/cumulated_execution_times_15_60000_10000.png Graphic file (type 
 png)
  <use pictures/cumulated_execution_times_15_60000_10000.png>
 Package pdftex.def Info: pictures/cumulated_execution_times_15_60000_10000.png 
-used on input line 119.
+used on input line 115.
+(pdftex.def)             Requested size: 157.0608pt x 117.79486pt.
+
+<pictures/average_execution_times_per_update_20_60000_10000.png, id=89, 462.528
+pt x 346.896pt>
+File: pictures/average_execution_times_per_update_20_60000_10000.png Graphic fi
+le (type png)
+
+<use pictures/average_execution_times_per_update_20_60000_10000.png>
+Package pdftex.def Info: pictures/average_execution_times_per_update_20_60000_1
+0000.png used on input line 120.
+(pdftex.def)             Requested size: 157.0608pt x 117.79486pt.
+
+<pictures/final_execution_times_20_60000_10000.png, id=90, 462.528pt x 346.896p
+t>
+File: pictures/final_execution_times_20_60000_10000.png Graphic file (type png)
+
+ <use pictures/final_execution_times_20_60000_10000.png>
+Package pdftex.def Info: pictures/final_execution_times_20_60000_10000.png used
+ on input line 125.
+(pdftex.def)             Requested size: 157.0608pt x 117.79486pt.
+
+<pictures/cumulated_execution_times_20_60000_10000.png, id=91, 462.528pt x 346.
+896pt>
+File: pictures/cumulated_execution_times_20_60000_10000.png Graphic file (type 
+png)
+ <use pictures/cumulated_execution_times_20_60000_10000.png>
+Package pdftex.def Info: pictures/cumulated_execution_times_20_60000_10000.png 
+used on input line 130.
 (pdftex.def)             Requested size: 157.0608pt x 117.79486pt.
 
 
 LaTeX Warning: `h' float specifier changed to `ht'.
 
 (./fully_dynamic_k_center_report_adele_mortier.bbl)
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 135.
- [2 <./pictures/map_15_75000_15000_0.png> <./pictures/map_15_75000_15000_821.pn
-g>] [3 <./pictures/average_execution_times_per_update_20_60000_10000.png> <./pi
-ctures/final_execution_times_20_60000_10000.png> <./pictures/cumulated_executio
-n_times_20_60000_10000.png> <./pictures/average_execution_times_per_update_15_6
-0000_10000.png> <./pictures/final_execution_times_15_60000_10000.png> <./pictur
-es/cumulated_execution_times_15_60000_10000.png>]
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 135.
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 177.
+ [2] [3 <./pictures/map_15_75000_15000_0.png> <./pictures/map_15_75000_15000_82
+1.png> <./pictures/average_execution_times_per_update_15_60000_10000.png> <./pi
+ctures/final_execution_times_15_60000_10000.png> <./pictures/cumulated_executio
+n_times_15_60000_10000.png> <./pictures/average_execution_times_per_update_20_6
+0000_10000.png> <./pictures/final_execution_times_20_60000_10000.png> <./pictur
+es/cumulated_execution_times_20_60000_10000.png>]
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 177.
  (./fully_dynamic_k_center_report_adele_mortier.aux)
-Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 135.
-Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 135.
+Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 177.
+Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 177.
 Package rerunfilecheck Info: File `fully_dynamic_k_center_report_adele_mortier.
 out' has not changed.
-(rerunfilecheck)             Checksum: 01D7BA3F9D94EA94757B9A36C6EAF2A4;350.
-Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 135.
+(rerunfilecheck)             Checksum: A93AE82507A1DB32FB284A25EE0E7619;460.
+Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 177.
  ) 
 Here is how much of TeX's memory you used:
- 7081 strings out of 493029
- 108480 string characters out of 6136234
- 203089 words of memory out of 5000000
- 10528 multiletter control sequences out of 15000+600000
+ 7091 strings out of 493029
+ 108615 string characters out of 6136234
+ 211454 words of memory out of 5000000
+ 10532 multiletter control sequences out of 15000+600000
  10139 words of font info for 36 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  36i,14n,39p,981b,539s stack positions out of 5000i,500n,10000p,200000b,80000s
@@ -770,11 +774,11 @@ st/fonts/type1/public/amsfonts/cm/cmti10.pfb></usr/share/texlive/texmf-dist/fon
 ts/type1/public/amsfonts/cm/cmti8.pfb></usr/share/texlive/texmf-dist/fonts/type
 1/public/amsfonts/cm/cmtt10.pfb></usr/share/texlive/texmf-dist/fonts/type1/publ
 ic/amsfonts/cm/cmtt8.pfb>
-Output written on fully_dynamic_k_center_report_adele_mortier.pdf (3 pages, 104
-2939 bytes).
+Output written on fully_dynamic_k_center_report_adele_mortier.pdf (3 pages, 113
+7206 bytes).
 PDF statistics:
- 175 PDF objects out of 1000 (max. 8388607)
- 133 compressed objects within 2 object streams
- 25 named destinations out of 1000 (max. 500000)
- 89 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 191 PDF objects out of 1000 (max. 8388607)
+ 149 compressed objects within 2 object streams
+ 31 named destinations out of 1000 (max. 500000)
+ 105 words of extra memory for PDF output out of 10000 (max. 10000000)
 

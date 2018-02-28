@@ -406,8 +406,7 @@ if __name__ == '__main__':
     id_to_coords = {i: point for i, point in enumerate(dataset)}
     dataset_ids = id_to_coords.keys()
 
-    # epsilons = list(np.arange(0.1, 1.1, 0.1))
-    epsilons = [0.1]
+    epsilons = list(np.arange(0.1, 1.1, 0.1))
     max_dist = pre.max_distance(dataset)
     min_dist = pre.min_distance(np.asarray(dataset))
     eps_to_betas = pre.compute_betas(max_dist, min_dist, epsilons)

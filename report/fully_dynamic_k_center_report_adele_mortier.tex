@@ -69,8 +69,19 @@ The aim of this class project was to implement an algorithm that maintains effic
 		\end{itemize}
 		We used the \texttt{dict} structure for two reasons : first the \texttt{dict} structure is more modular\footnote{for instance if we wanted to do something else than the sliding window model, \textit{e.g.} add/remove the nodes in random order (and hence by random \textit{id}), a \texttt{dict} would be much more convenient (w.r.t a \texttt{list}) to remember which point belong to which cluster...}, second because of the good time complexities of this structure\footnote{for \texttt{get} and \texttt{set}, both the \texttt{dict} and the \texttt{list} are $O(1)$ on average. \texttt{dict} is better on average for \texttt{delete}, with a $O(1)$, \textit{vs} $O(n)$ for the \texttt{list}. That is good for us because we have to do as many deletions as insertions in our framework. Conversely, we do not use so many times \texttt{get} and \texttt{set}, where the \texttt{list} is slightly better (in worst case).}
 \section{Analysis}
-All the plots and tables are in the Appendix. As we look at Figure \ref{maps}, the algorithm seems to work well, and the Haversine metric allows to see a real geographical clustering, with areas that coincide with the different continents and the regions within them that present a huge demographic density : US East- and Westcoasts, Europe, East-Asia, Middle-East, South-Africa, South America... We can notice that the partition is quite robust regarding reclustering after center deletion. The clusters that keep the same color have not been reclustered, whereas there is a brand new cluster located in Japan, and for instance the Australian cluster has moved a bit.\\
-As we look at the plots of Figure \ref{plots}, we can observe that the execution time is very sensitive to the precision parameter $\epsilon$. Indeed, a smaller $\epsilon$ (\textit{i.e.} a higher precision) forces us to compute a clustering for more $\beta$\begin{tiny}s\end{tiny}...
+All the plots and tables are in the Appendix.
+	\subsection{Time}
+		As we look at Figure \ref{maps}, the algorithm seems to work well, and the Haversine metric allows to see a real geographical clustering, with areas that coincide with the different continents and the regions within them that present a huge demographic density : US East- and Westcoasts, Europe, East-Asia, Middle-East, South-Africa, South America... We can notice that the partition is quite robust regarding reclustering after center deletion. The clusters that keep the same color have not been reclustered, whereas there is a brand new cluster located in Japan, and for instance the Australian cluster has moved a bit.\\
+		As we look at the plots of Figure \ref{plots}, we can observe that the execution time is very sensitive to the precision parameter $\epsilon$. Indeed, a smaller $\epsilon$ (\textit{i.e.} a higher precision) forces us to compute a clustering for more $\beta$\begin{tiny}s\end{tiny}, and thus the computation takes more time... The time is also sensitive to the number of clusters : adding $5$ clusters increases the computation time by $13\%$ on average for each $\epsilon$.
+	\subsection{Accuracy}
+		We did two measures for accuracy. Both relied on the following assumptions :
+		\begin{itemize}
+			\item a static clustering (without any insertions/deletions) on a given window is a ground truth for this window;
+			\item an approximation for a ``target'' window is obtained by ``sliding'' another window located at the beginning of the dataset to this target window using insertion/deletions.
+		\end{itemize}
+		We computed the F1 score\footnote{as defined in the course on Community detection, slides 24-25} of different approximations w.r.t a clustering on the target window $[50k; 60k[$, with a number of $15$ clusters. An ``approximation'' is defined by an offset (beginning of the starting window) and a number of operations (number of window moves). The ending window must coincide with the target window. The F1 scores are listed in Figure \ref{f1}.
+		
+		The second measure we did was the comparison of the $\beta$\begin{tiny}s\end{tiny} obtained with a ``target'' window and an approximation of this target. To do this, we did a clustering with $\epsilon = 0.1$ on the $[30k; 40k]$ window without any updates (``target''), and on the $[0, 10k]$ starting window with $30000$ updates. We got the $\beta$\begin{tiny}s\end{tiny} of Figure \ref{beta_ratio}.
 
 \begin{appendices}
 	\begin{figure}[h]
@@ -88,8 +99,23 @@ As we look at the plots of Figure \ref{plots}, we can observe that the execution
 \caption{Spatial representation of the clustering before and after a reclustering operation}
 \label{maps}
 \end{figure}
+
 \begin{figure}[h]
-	\centering
+	\begin{subfigure}[b]{0.3\textwidth}
+		\includegraphics[width=\textwidth]{pictures/average_execution_times_per_update_15_60000_10000.png}
+		\caption{Average execution time per update as a function of $\epsilon$}
+	\end{subfigure}
+	% this comment avoids break-line...
+	\begin{subfigure}[b]{0.3\textwidth}
+		\includegraphics[width=\textwidth]{pictures/final_execution_times_15_60000_10000.png}
+		\caption{Total execution time (static and dynamic clustering) as a function of $\epsilon$}
+	\end{subfigure}
+	%
+	\begin{subfigure}[b]{0.3\textwidth}
+		\includegraphics[width=\textwidth]{pictures/cumulated_execution_times_15_60000_10000.png}
+		\caption{Evolution of the execution time (sampled each 500 operations)}
+	\end{subfigure}
+	
 	\begin{subfigure}[b]{0.3\textwidth}
 		\includegraphics[width=\textwidth]{pictures/average_execution_times_per_update_20_60000_10000.png}
 		\caption{Average execution time per update as a function of $\epsilon$}
@@ -105,26 +131,42 @@ As we look at the plots of Figure \ref{plots}, we can observe that the execution
 		\caption{Evolution of the execution time (sampled each 500 operations)}
 	\end{subfigure}
 	
-	\begin{subfigure}[b]{0.3\textwidth}
-		\includegraphics[width=\textwidth]{pictures/average_execution_times_per_update_15_60000_10000.png}
-		\caption{Average execution time per update as a function of $\epsilon$}
-	\end{subfigure}
-	% this comment avoids break-line...
-	\begin{subfigure}[b]{0.3\textwidth}
-		\includegraphics[width=\textwidth]{pictures/final_execution_times_15_60000_10000.png}
-		\caption{Total execution time (static and dynamic clustering) as a function of $\epsilon$}
-	\end{subfigure}
-	%
-	\begin{subfigure}[b]{0.3\textwidth}
-		\includegraphics[width=\textwidth]{pictures/cumulated_execution_times_15_60000_10000.png}
-		\caption{Evolution of the execution time (sampled each 500 operations)}
-	\end{subfigure}
-	\caption{Experimental results for several sets of parameters}\label{fig:ABCD}
+	\caption{Experimental results for several sets of parameters ($15$/$20$ clusters, $60000$ operations, $10000$ window width)}\label{fig:ABCD}
 \label{plots}
 \end{figure}
-\begin{tabular}{|c|c|c|c|c|c|c|c|c|}
-	\frac{t_2}{t_1}
-\end{tabular}
+
+\begin{figure}
+	\centering
+	\begin{tabular}{|c|c|c|c|c|c|c|c|c|c|c|c|}
+		\hline
+		Epsilon & 0.1 & 0.2&0.3&0.4&0.5&0.6&0.7&0.8&0.9&1.0\\ \hline
+		Final times & 9139 &	4787 &	3341 &	2687 &	2160 &	1867 &	1649 &	1482 &	1352 &	1266\\
+		Ratios &1,91&	1,43&	1,24&	1,24&	1,16&	1,13&	1,11&	1,10&	1,07& \\ \hline	
+	\end{tabular}
+	\caption{Sensitivities of the execution times to the value of $\epsilon$}
+\end{figure}
+\begin{figure}
+	\centering
+	\begin{tabular}{|c|c c c c c c c c c c|}
+		\hline
+		Offset & 5k & 10k & 15k & 20k & 25k & 30k & 35k & 40k & 45k & 50k\\
+		Operations & 45k & 40k & 35k & 30k & 25k & 20k & 15k & 10k & 5k & 0\\ \hline
+		F1 scores & 0.47 & 0.59 & 0.60 & 0.57& 0.61 & 0.58 & 0.34 & 0.26 & 0.42 & 1.0 \\ \hline
+	\end{tabular}
+	\caption{F1 scores for several approximations of window $[50k, 60k[$ with $15$ clusters}
+	\label{f1}
+\end{figure}
+\begin{figure}
+	\centering
+	\begin{tabular}{|c|c| c |}
+		\hline
+		Ground truth & Approximation \\ \hline
+		2048,40021459 & 2253,24023604 \\ \hline
+		Ratio &  0.91 \\ \hline
+	\end{tabular}
+	\caption{Value of $\beta$ for the window $[30k; 40k]$ with $15$ clusters and $\epsilon = 0.1$ w.r.t its approximation}
+	\label{beta_ratio}
+\end{figure}
 \end{appendices}
 \medskip
 
