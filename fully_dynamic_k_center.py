@@ -1,5 +1,4 @@
 from __future__ import generators
-import cartopy.crs as ccrs 
 from copy import deepcopy
 import h5py
 import numpy as np
@@ -91,7 +90,7 @@ def build_beta_clustering(id_to_coords, k, beta, dataset_ids):
         # the center belongs to its own cluster !
 
         log.info('Building cluster ' + str(i+1) + ' whose center is ' +
-                  str(center_id))
+                 str(center_id))
         d, clusters = build_cluster(id_to_coords, center_id,
                                     beta, d, clusters)
     return clusters, order
@@ -135,22 +134,18 @@ def build_epsilons_clustering(id_to_coords, k, eps_to_betas, dataset_ids):
         times[eps] = (end-start)
     return whole_clustering, whole_ordering, times
 
-def best_betas(whole_clustering, k, n_operations, window_width):
-    folder_name = str(k) + '_' + str(n_operations) + '_' + str(window_width)
-    f = open('files/' + folder_name + '/best_betas_'+folder_name+'.txt', 'w')
-    best_of_all = 0
+
+def best_betas(whole_clustering, f, i):
+    eps_to_best_beta = {}
     for eps, betas_clustering in whole_clustering.items():
         beta_candidates = []
         for beta, beta_clustering in betas_clustering.items():
             if -1 not in beta_clustering.values():
                 beta_candidates.append(beta)
         best_beta = min(beta_candidates)
-        if eps == 0.1:
-            best_of_all = best_beta
-        f.write(str(eps) + "    " + str(best_beta) + '\n')
-    f.close()
-    return best_of_all
-
+        eps_to_best_beta[eps] = best_beta
+        f[str(eps)][i] = best_beta
+    return eps_to_best_beta
 
 
 ######################
@@ -183,7 +178,7 @@ def insertion(id_to_coords, k, point_id, clustering, ordering):
                 center = id_to_coords[center_id]
                 if pre.Haversine(center, point) <= 2*beta:
                     log.info('This point belongs to the cluster of point ' +
-                              str(center_id) + '\n')
+                             str(center_id) + '\n')
                     beta_clustering[point_id] = center_id
                     found = 1
                     break
@@ -200,7 +195,7 @@ def insertion(id_to_coords, k, point_id, clustering, ordering):
     return clustering, ordering, times
 
 
-def deletion(id_to_coords, point_id, clustering, ordering, n_op, col):
+def deletion(id_to_coords, point_id, clustering, ordering):
     """
     This function handles point deletion while maintaining the parzallel
     clustering (one clustering per value of beta, and several beta per value of
@@ -211,7 +206,8 @@ def deletion(id_to_coords, point_id, clustering, ordering, n_op, col):
     """
     times = {}
     reclustered = False
-    # reclustered is a flag that says if we have reclustered a subset of clusters during the current call to deletion
+    # reclustered is a flag that says if we have reclustered a subset of
+    # clusters during the current call to deletion
 
     for epsilon, betas_clustering in clustering.items():
         start = time.time()
@@ -223,11 +219,11 @@ def deletion(id_to_coords, point_id, clustering, ordering, n_op, col):
             beta_ordering = ordering[epsilon][beta]
             if point_id not in beta_ordering:
                 log.info('This point was not a center, the deletion does' +
-                          ' not affect the whole clustering')
+                         ' not affect the whole clustering')
                 del beta_clustering[point_id]
             else:
                 log.info('This point is a center : reclustering all the ' +
-                          'clusters created after it')
+                         'clusters created after it')
                 reclustered = True
                 del beta_clustering[point_id]
                 i = beta_ordering.index(point_id)
@@ -235,9 +231,9 @@ def deletion(id_to_coords, point_id, clustering, ordering, n_op, col):
                 # to reconstruct all the clusters that are younger than it
                 total_n_clusters = len(beta_ordering)
                 log.info('This point was the center of the cluster number: ' +
-                          str(i))
+                         str(i))
                 log.info('We will have to recluster ' +
-                          str(total_n_clusters-i) + ' clusters')
+                         str(total_n_clusters-i) + ' clusters')
 
                 centers_to_recluster = beta_ordering[i:]
                 beta_ordering = beta_ordering[:i]
@@ -272,6 +268,7 @@ def merge(clusters, order, sub_clusters, sub_order):
         clusters[point_id] = center_id
     return clusters, order
 
+
 def sort_times(times):
     epsilons_and_times = sorted([(eps, time) for eps, time in times.items()])
     epsilons, times = zip(*epsilons_and_times)
@@ -285,32 +282,53 @@ def sort_times(times):
 # Sliding window #
 ##################
 
+
 def sliding_window(id_to_coords, window_width, n_operations,
                    dataset_ids, k, eps_to_betas):
-    folder_name = str(k) + '_' + str(n_operations) + '_' + str(window_width)
+
+    # Operations on folders
+    folder_name = str(k) + '_' + str(n_operations) + '_' + str(window_width) + '_' + str(offset)
     if not os.path.exists('files/' + folder_name):
         os.makedirs('files/' + folder_name)
     else:
         print('Folder for these parameters already exists, please delete if before')
         sys.exit(0)
-    f = open('files/' + folder_name + '/times_cumulated_'+folder_name+'.txt', 'w')
-    f2 = open('files/' + folder_name + '/best_beta_' + folder_name + '.txt', 'w')
-    col = [(np.random.uniform(0, 1, 3)) for _ in range(0, k)]
+    f_times = h5py.File('files/' + folder_name + '/times_cumulated_'+folder_name+'.hdf5', 'w')
+    f_betas = h5py.File('files/' + folder_name + '/best_betas_'+folder_name+'.hdf5', 'w')
 
+    step_size = n_operations/200
+
+    for eps in eps_to_betas:
+        eps_str = str(eps)
+        f_times.create_dataset(eps_str, (202,), dtype = 'i')
+        f_betas.create_dataset(eps_str, (n_operations+1, ), dtype = 'float')
+
+
+    # Static clustering
     seed = dataset_ids[:window_width]
     clustering, ordering, times = build_epsilons_clustering(id_to_coords, k,
                                                             eps_to_betas,
                                                             seed)
-    _, epsilons_str, times_str = sort_times(times)
-    f.write('Epsilons    ' + epsilons_str + '\n')
-    f.write('First clustering    ' + times_str + '\n')
-    best_of_all = best_betas(clustering, k, n_operations, window_width) 
-    f2.write(str(best_of_all) + '\n')
+    eps_to_best_beta = best_betas(clustering, f_betas, 0)
+
+    # I/O
+    #times, epsilons_str, times_str = sort_times(times)
+    epsilons_str = []
+    for eps, time in times.items():
+        eps_str = str(eps)
+        f_times[eps_str][0] = time
+        epsilons_str.append(eps_str)
+    """f.write('Epsilons    ' + epsilons_str + '\n')
+    f.write('First clustering    ' + times_str + '\n')"""
+
+
+    # Dynamic clustering
     print('Beginning adversarial clustering')
     for i in range(0, n_operations):
         j = i + window_width
-        clustering, ordering, times_del, reclustered = deletion(id_to_coords, i, clustering,
-                                                   ordering, i, col)
+        clustering, ordering, times_del, reclustered = deletion(id_to_coords,
+                                                                i, clustering,
+                                                                ordering)
         clustering, ordering, times_ins = insertion(id_to_coords, k, j,
                                                     clustering, ordering)
         times_ins, _, _ = sort_times(times_ins)
@@ -318,13 +336,30 @@ def sliding_window(id_to_coords, window_width, n_operations,
 
         times_ins_del = map(sum, zip(*[times_del, times_ins]))
         new_times = map(sum, zip(*[times, times_ins_del]))
-        if (i+1)%2000 == 0 and i != 0:
+
+        # I/O
+        if (i+1) % step_size == 0 and i != 0:
             print('Operation ' + str(i))
-            f.write('Operation ' + str(i) + '    ' + '    '.join([str(time) for time in new_times]) + '\n')
-            best_of_all = best_betas(clustering, k, n_operations, window_width) 
-            f.write('Operation' + str(i) + '    ' + str(best_of_all) + '\n')
+            for eps_str, time in zip(epsilons_str, new_times):
+                f_times[eps_str][(i+1)/step_size] = time
         times = new_times
-    f.close()
+    
+    eps_to_best_beta = best_betas(clustering, f_betas, i)
+    min_eps = min(eps_to_betas.keys())
+    best_beta_of_all = eps_to_best_beta[min_eps]
+    cluster = clustering[min_eps][best_beta_of_all]
+    print('Saving cluster for epsilon=', min_eps, ' and beta=', best_beta_of_all)
+    save_cluster(cluster, folder_name)
+
+
+#######
+# I/O #
+#######
+
+def save_cluster(clusters, folder_name):
+    clusters_h5 = h5py.File('files/' + folder_name + '/' + folder_name + '_clusters.hdf5', 'w')
+    clusters_h5.create_dataset('centers', data=clusters.values())
+    clusters_h5.close()
 
 
 if __name__ == '__main__':
@@ -336,6 +371,8 @@ if __name__ == '__main__':
 
     parser.add_argument('--n_operations', type=int, default='60000')
     parser.add_argument('--window_width', type=int, default='10000')
+    parser.add_argument('--offset', type=int, default=0)
+
     parser.add_argument('--verbose', type=bool, default=False)
 
 
@@ -349,6 +386,7 @@ if __name__ == '__main__':
     window_width = args.window_width
     n_operations = args.n_operations
     k = args.k
+    offset = args.offset
 
 
 
@@ -360,24 +398,20 @@ if __name__ == '__main__':
     # we open the h5 file that contains the data
     f = h5py.File('dataset.hdf5', 'r')
     # we put the data into lists
-    timestamps = f['timestamps'][:window_width+n_operations]  # array of numpy ints
-    latitudes = f['latitudes'][:window_width+n_operations]  # list of numpy floats
-    longitudes = f['longitudes'][:window_width+n_operations]  # list of numpy floats
+    timestamps = f['timestamps'][offset:offset+window_width+n_operations]  # array of numpy ints
+    latitudes = f['latitudes'][offset:offset+window_width+n_operations]  # list of numpy floats
+    longitudes = f['longitudes'][offset:offset+window_width+n_operations]  # list of numpy floats
     dataset = list(zip(latitudes, longitudes))  # list of tuples (lat, lon)
 
     id_to_coords = {i: point for i, point in enumerate(dataset)}
     dataset_ids = id_to_coords.keys()
 
-    epsilons = list(np.arange(0.1, 1.1, 0.1))
+    # epsilons = list(np.arange(0.1, 1.1, 0.1))
+    epsilons = [0.1]
     max_dist = pre.max_distance(dataset)
     min_dist = pre.min_distance(np.asarray(dataset))
-    eps_to_betas = pre.compute_betas(max_dist, min_dist, epsilons)    
+    eps_to_betas = pre.compute_betas(max_dist, min_dist, epsilons)
+
     print('Computing clustering...')
     times = sliding_window(id_to_coords, window_width, n_operations,
                            dataset_ids, k, eps_to_betas)
-
-
-    print('Plotting...')
-    post.plot_times(n_operations, k, window_width)
-
-

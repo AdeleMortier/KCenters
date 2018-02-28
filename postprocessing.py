@@ -1,3 +1,4 @@
+import h5py
 import matplotlib.pyplot as plt
 import argparse
 from collections import defaultdict
@@ -96,8 +97,46 @@ def plot_clusters_on_map(id_to_coords, col, clusters, order, number):
 
 
 
+############
+# Accuracy #
+############
+
+def F1_pair(cluster_exp, cluster_th):
+    len_exp = len(cluster_exp)
+    len_th = len(cluster_th)
+    card_inter = len_exp + len_th - len(list(set(cluster_exp + cluster_th)))
+    precision =  card_inter/len_exp
+    recall = card_inter/len_th
+    if precision == 0 and recall == 0:
+        return None
+    return (2*precision*recall)/(recall+precision)
+
+def sum_best_F1(clusters_exp, clusters_th):
+    sum_best = 0
+    for i, cluster_exp in enumerate(clusters_exp):
+        best_F1 = F1_pair(cluster_exp, clusters_th[0])
+        for cluster_th in clusters_th[1:]:
+            new_F1 = F1_pair(cluster_exp, cluster_th)
+            if new_F1 > best_F1:
+                best_F1 = new_F1
+        if best_F1:
+            sum_best += best_F1
+    return sum_best
 
 
+def F1_all(clusters_exp, clusters_th):
+    sum_best_F1_exp = sum_best_F1(clusters_exp, clusters_th)
+    sum_best_F1_th = sum_best_F1(clusters_th, clusters_exp)
+    return 1./(2*len(clusters_exp))*sum_best_F1_exp + 1./(2*len(clusters_th))*sum_best_F1_th
+
+def open_cluster(path):
+    f  = h5py.File(path, 'r')['centers']
+    centers_ids = list(set(f))
+    clusters = [[] for _ in range(0, len(centers_ids))]
+    centers_remapping = {center_id : i for i, center_id in enumerate(centers_ids)}
+    for i, center in enumerate(f):
+        clusters[centers_remapping[center]].append(i)
+    return clusters
 
 
 
@@ -116,8 +155,18 @@ if __name__ == '__main__':
     n_operations = args.n_operations
     k = args.k
 
-    print("Plotting...")
-    plot_times(n_operations, k, window_width)
+    """print("Plotting...")
+    plot_times(n_operations, k, window_width)"""
+
+    path1 = 'files/15_0_10000_50000/15_0_10000_50000_clusters.hdf5'
+
+
+    path2 = 'files/15_30000_10000_20000/15_30000_10000_20000_clusters.hdf5'
+    clusters_exp = open_cluster(path2)
+    clusters_th = open_cluster(path1)
+    f1 = F1_all(clusters_exp, clusters_th)
+    print(f1)
+
 
 
 
