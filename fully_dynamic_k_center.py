@@ -318,7 +318,7 @@ def sliding_window(id_to_coords, window_width, n_operations,
 
         times_ins_del = map(sum, zip(*[times_del, times_ins]))
         new_times = map(sum, zip(*[times, times_ins_del]))
-        if (i+1)%500 == 0 and i != 0:
+        if (i+1)%2000 == 0 and i != 0:
             print('Operation ' + str(i))
             f.write('Operation ' + str(i) + '    ' + '    '.join([str(time) for time in new_times]) + '\n')
             best_of_all = best_betas(clustering, k, n_operations, window_width) 
